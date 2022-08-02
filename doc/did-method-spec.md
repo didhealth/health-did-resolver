@@ -551,6 +551,19 @@ Example:
 }
 ```
 
+### Security Considerations
+
+The Ethereum DID Health contract prevents multiple DIDs for a single Ethereum Wallet address: 
+In order to uniquely identify the orwnership of a DID, we incorporate 
+into the DID Syntax the following data:
+
+- `walletaddress`: The ethereum waller address os 42-character hexadecimal address derived from the last 20 bytes of the public key 
+controlling an Ethereum account with 0x appended in front.
+
+Altogether, the full string uniquely identifies any entity with an Ethereum address. 
+This value is explicit in the DID , the actual DID is deterministically
+derived from the wallet address. Specifically there is no possibility that more than 1 DID can be created per Ethereum address.
+
 #### Security considerations of DID versioning
 
 Applications must take precautions when using versioned DID URIs.
@@ -559,6 +572,11 @@ The use of versioned DID URIs is only recommended in some limited situations whe
 be verified, where malicious signatures can be easily revoked, and where applications can afford to check for these
 explicit revocations of either keys or signatures.
 Wherever versioned DIDs are in use, it SHOULD be made obvious to users that they are dealing with potentially revoked data.
+
+### Privacy Considerations
+
+DID documents in the hpass method do not include any PII, as required by the DID core specification, and recommended for privacy reasons.
+The only information related to a user/person/service that is written into a DID Document is their public key and ethereum wallet address, which by definition poses no privacy risk on its own.
 
 ### `initial-state` query string parameter
 
