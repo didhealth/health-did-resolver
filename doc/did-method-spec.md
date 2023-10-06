@@ -67,8 +67,6 @@ The Identifier Controller oversees the process of registering new DIDs. It ensur
 
 ## Target System
 
-The target system is the Ethereum network where the ERC1056 is deployed. This could either be:
-
 The DID Health Registry Smart Contract is deployed to the following blockchain networks:
 
 - Ethereum Mainnet
