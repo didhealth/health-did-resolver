@@ -2,9 +2,11 @@
 
 ## Author
 
-- DID Health core team: Hector Flores. VJ Hameed, Richard Braman 
+- DID Health core team: Hector Flores. Shyem Patel, Richard Braman 
 
 ## Preface
+
+The DID:HEALTH method specification adheres to the requirements outlined in the DID specification, as currently published by the W3C Credentials Community Group. For comprehensive information about DIDs and DID method specifications, 
 
 The DID:HEALTH method specification conforms to the requirements specified in
 the [DID specification](https://w3c-ccg.github.io/did-core/), currently published by the W3C Credentials Community
@@ -36,20 +38,47 @@ For a reference implementation of this DID method specification see [3].
 
 ### Identifier Controller
 
-By default, each identifier is controlled by itself, or by its corresponding Ethereum address in case the identifier
-is a public key. Each identifier can only be controlled by a single account at any given time. The controller can replace
-themselves with any other Ethereum address, including contracts to allow more advanced models such as multi-signature
-controllership.
+The Identifier Controller is a crucial component within the DID:HEALTH method specification. It plays a pivotal role in managing the decentralized identifiers (DIDs) associated with healthcare-related data on the Ethereum blockchain. This controller is facilitated by the HealthDIDRegistry smart contract.
+
+Responsibilities:
+1. Registration of DIDs:
+
+The Identifier Controller oversees the process of registering new DIDs. It ensures that each DID is unique and not already associated with an existing address.
+
+2. Ownership Transfer:
+
+- It facilitates the transfer of ownership of a specific DID to a new Ethereum address. This operation requires authentication from the current owner.
+
+3. Updating DID Data:
+
+- The Identifier Controller manages the updating of URI information associated with a specific DID. This enables users to keep their health data up-to-date and accurate.
+
+4. Adding Alternative Data Sources:
+
+- It allows the addition of alternative URIs to an existing DID's data. This feature is useful for incorporating multiple sources of health-related information.
+
+5. Delegate Address Management:
+
+- The Identifier Controller is responsible for adding or removing delegate addresses for accessing a particular DID. Delegates can be granted limited access to specific DIDs for various purposes.
+
+6. Chain ID Resolution:
+
+- It provides the functionality to resolve the chain ID from the given DID, ensuring that the identifier is valid within the correct context.
 
 ## Target System
 
 The target system is the Ethereum network where the ERC1056 is deployed. This could either be:
 
-- Mainnet
-- Ropsten
-- Rinkeby
-- Kovan
-- other EVM-compliant blockchains such as private chains, side-chains, or consortium chains.
+The DID Health Registry Smart Contract is deployed to the following blockchain networks:
+
+- Ethereum Mainnet
+- Polygon
+- Base
+- Linea
+- Arbitrum
+- Scroll
+- Optimum
+- zx Chains
 
 ### Advantages
 
@@ -220,25 +249,75 @@ A reference to it must also be added to the `authentication` and `assertionMetho
 
 #### Enumerating Contract Events to build the DID Document
 
-The ERC1056 contract publishes three types of events for each identifier.
+The ERC1056 contract publishes nine types of events for each identifier.
 
-- `DIDOwnerChanged` (indicating a change of `controller`)
-- `DIDDelegateChanged`
-- `DIDAttributeChanged`
 
-If a change has ever been made for the Ethereum address of an identifier the block number is stored in the
-`changed` mapping of the contract.
+Enumerating Contract Events to Build the DID Document:
 
-The latest event can be efficiently looked up by checking for one of the 3 above events at that exact block.
+1. DIDRegistered Event:
 
-Each ERC1056 event contains a `previousChange` value which contains the block number of the previous change (if any).
+- Description: This event is emitted when a new decentralized identifier (DID) is successfully registered.
+- Parameters:
+  - healthDid: The unique identifier for the health DID.
 
-To see all changes in history for an address use the following pseudo-code:
+2. DIDUpdated Event:
 
-1. eth_call `changed(address identity)` on the ERC1056 contract to get the latest block where a change occurred.
-2. If result is `null` return.
-3. Filter for events for all the above types with the contracts address on the specified block.
-4. If event has a previous change then go to 3
+- Description: This event is emitted when the information associated with a DID is updated.
+- Parameters:
+  - healthDid: The unique identifier for the health DID.
+
+3. DelegateAdded Event:
+
+- Description: This event is emitted when a delegate address is added to a specific DID, granting them limited access.
+- Parameters:
+  - peerAddress: The address of the delegate.
+  - healthDid: The unique identifier for the health DID.
+
+4. DelegateRemoved Event:
+
+- Description: This event is emitted when a delegate address is removed from a specific DID, revoking their access.
+- Parameters:
+  - peerAddress: The address of the delegate.
+  - healthDid: The unique identifier for the health DID.
+
+5. OwnershipTransferred Event:
+
+- Description: This event is emitted when ownership of a specific DID is transferred to a new address.
+- Parameters:
+  - previousOwner: The previous owner's address.
+  - newOwner: The new owner's address.
+  - healthDid: The unique identifier for the health DID.
+
+6. AltDataAdded Event:
+
+- Description: This event is emitted when alternative data sources are added to a specific DID.
+- Parameters:
+  - healthDid: The unique identifier for the health DID.
+  - uris: An array of alternative URIs.
+
+7. ChainIDResolved Event:
+
+- Description: This event is emitted when the chain ID is successfully resolved from a DID.
+- Parameters:
+  - healthDid: The unique identifier for the health DID.
+  - chainId: The resolved chain ID.
+
+8. DIDOwnershipTransferred Event:
+
+- Description: This event is emitted when ownership of a specific DID is transferred to a new address.
+- Parameters:
+  - previousOwner: The previous owner's address.
+  - newOwner: The new owner's address.
+  - healthDid: The unique identifier for the health DID.
+
+9. URIUpdated Event:
+
+- Description: This event is emitted when the URI associated with a specific DID is updated.
+- Parameters:
+  - healthDid: The unique identifier for the health DID.
+  - newUri: The updated URI.
+
+These events play a crucial role in maintaining transparency and providing a verifiable history of actions performed on the DID Health Registry Smart Contract. They form the basis for constructing the DID document, ensuring that the information is up-to-date and trustworthy.
 
 After building the history of events for an address, interpret each event to build the DID document like so: 
 
